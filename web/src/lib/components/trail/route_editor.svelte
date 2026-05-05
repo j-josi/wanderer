@@ -55,6 +55,7 @@
             max_hiking_difficulty: 6,
             walking_speed: 5.1,
             use_hills: 1,
+            use_ferry: 0,
             shortest: false,
         };
     }
@@ -66,6 +67,7 @@
             use_roads: 0.5,
             use_hills: 0.5,
             avoid_bad_surfaces: 0.25,
+            use_ferry: 0,
             shortest: false,
         };
     }
@@ -76,6 +78,7 @@
             height: 1.9,
             top_speed: 140,
             fixed_speed: 0,
+            use_ferry: 0,
             shortest: false,
         };
     }

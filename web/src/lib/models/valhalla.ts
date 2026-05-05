@@ -3,10 +3,10 @@ import * as M from "maplibre-gl";
 
 interface ValhallaCostingOptions {
     shortest?: boolean
+    use_ferry?: number
 }
 
 export interface ValhallaPedestrianCostingOptions extends ValhallaCostingOptions {
-    use_ferry?: number
     use_living_streets?: number
     use_tracks?: number
     service_penalty?: number
@@ -28,7 +28,6 @@ export interface ValhallaBicycleCostingOptions extends ValhallaCostingOptions {
     maneuver_penalty?: number
     country_crossing_penalty?: number
     country_crossing_cost?: number
-    use_ferry?: number
     use_living_streets?: number
     service_penalty?: number
     service_factor?: number
