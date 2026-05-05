@@ -1,22 +1,26 @@
-version: '3'
-
-x-common-env: &cenv
-  MEILI_URL: http://search:7700
-  MEILI_MASTER_KEY: vODkljPcfFANYNepCHyDyGjzAMPcdHnrb6X5KyXQPWo
+---
+# File inspired by official docker-compose.yaml example file (get https://raw.githubusercontent.com/open-wanderer/wanderer/main/docker-compose.yml)
+# All available environment variables and descriptions can be found here: https://wanderer.to/run/environment-configuration/
 
 services:
   search:
     container_name: wanderer-search
     image: getmeili/meilisearch:v1.36.0
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 256M
     environment:
-      <<: *cenv
+      MEILI_URL: http://search:7700
+      MEILI_MASTER_KEY: ${MEILI_MASTER_KEY}
       MEILI_NO_ANALYTICS: "true"
     ports:
-      - 7700:7700
+      - "7700:7700"
     networks:
       - wanderer
     volumes:
-      - ./data/data.ms:/meili_data/data.ms
+      - ./data/meili:/meili_data
     restart: unless-stopped
     healthcheck:
       test: curl --fail http://localhost:7700/health || exit 1
@@ -24,6 +28,7 @@ services:
       retries: 10
       start_period: 20s
       timeout: 10s
+
   db:
     container_name: wanderer-db
     image: flomp/wanderer-db
@@ -31,9 +36,11 @@ services:
       search:
         condition: service_healthy
     environment:
-      <<: *cenv
-      POCKETBASE_ENCRYPTION_KEY: fde406459dc1f6ca6f348e1f44a9a2af
-      ORIGIN: http://localhost:3000
+      ORIGIN: ${ORIGIN}
+      PUBLIC_POCKETBASE_URL: http://db:8090
+      POCKETBASE_ENCRYPTION_KEY: ${POCKETBASE_ENCRYPTION_KEY}
+      MEILI_URL: http://search:7700
+      MEILI_MASTER_KEY: ${MEILI_MASTER_KEY}
     ports:
       - "8090:8090"
     networks:
@@ -47,6 +54,7 @@ services:
       retries: 10
       start_period: 20s
       timeout: 10s
+
   web:
     container_name: wanderer-web
     image: flomp/wanderer-web
@@ -56,45 +64,41 @@ services:
       db:
         condition: service_healthy
     environment:
-      <<: *cenv
-      ORIGIN: http://localhost:3000
-      BODY_SIZE_LIMIT: Infinity
+      ORIGIN: ${ORIGIN}
       PUBLIC_POCKETBASE_URL: http://db:8090
-      PUBLIC_DISABLE_SIGNUP: "false"
+      PUBLIC_DISABLE_SIGNUP: ${PUBLIC_DISABLE_SIGNUP}
+      BODY_SIZE_LIMIT: ${BODY_SIZE_LIMIT}
+
       UPLOAD_FOLDER: /app/uploads
-      UPLOAD_USER:
-      UPLOAD_PASSWORD:
-      OVERPASS_API_URL: https://overpass-api.de
-      VALHALLA_URL: https://valhalla1.openstreetmap.de
-      NOMINATIM_URL: https://nominatim.openstreetmap.org
+      # UPLOAD_USER: ${UPLOAD_USER}
+      # UPLOAD_PASSWORD: ${UPLOAD_PASSWORD}
+
+      MEILI_URL: http://search:7700
+      MEILI_MASTER_KEY: ${MEILI_MASTER_KEY}
+
+      OVERPASS_API_URL: ${OVERPASS_API_URL}
+      VALHALLA_URL: ${VALHALLA_URL}
+      PUBLIC_VALHALLA_URL: ${PUBLIC_VALHALLA_URL}
+      NOMINATIM_URL: ${NOMINATIM_URL}
     volumes:
       - ./data/uploads:/app/uploads
-      # - ./data/about.md:/app/build/client/md/about.md
     ports:
       - "3000:3000"
     networks:
       - wanderer
     restart: unless-stopped
+    # healthcheck:
+    #   test: ["CMD", "curl", "--fail", "http://localhost:3000/"]
+    #   interval: 15s
+    #   retries: 10
+    #   start_period: 20s
+    #   timeout: 10s
     healthcheck:
-      test: ["CMD", "curl", "--fail", "http://localhost:3000/"]
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:3000/"]
       interval: 15s
       retries: 10
       start_period: 20s
       timeout: 10s
-# valhalla:
-#   image: ghcr.io/gis-ops/docker-valhalla/valhalla:latest
-#   ports:
-#     - "8002:8002"
-#   volumes:
-#     - ./data/valhalla:/custom_files
-#   environment:
-#     - tile_urls=https://download.geofabrik.de/europe/germany/bayern/oberbayern-latest.osm.pbf
-#     - use_tiles_ignore_pbf=True
-#     - force_rebuild=False
-#     - force_rebuild_elevation=False
-#     - build_elevation=True
-#     - build_admins=True
-#     - build_time_zones=True
 
 networks:
   wanderer:

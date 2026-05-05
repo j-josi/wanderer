@@ -32,7 +32,13 @@ The recommended and quickest way to install wanderer is using docker compose:
 
 ``` bash
 # download the docker compose file
-wget https://raw.githubusercontent.com/open-wanderer/wanderer/main/docker-compose.yml
+wget https://raw.githubusercontent.com/j-josi/wanderer/dev/docker-compose.yml
+
+# download the .env.example file
+wget https://raw.githubusercontent.com/j-josi/wanderer/dev/.env.example
+
+# copy .env.example and save it as .env
+cp .env.example .env
 
 # build and launch via docker compose
 docker compose up -d
@@ -40,9 +46,9 @@ docker compose up -d
 
 The first startup can take up to 90 seconds after which you can access the frontend at localhost:3000.
 
-> ℹ️ if you are not hosting wanderer at http://localhost:3000 make sure to change ORIGIN variable. Otherwise you will run into CORS errors.
+> ℹ️ if you are not hosting wanderer at http://localhost:3000 make sure to change ORIGIN variable in .env. Otherwise you will run into CORS errors.
 
-> ⚠️ if you are using wanderer in a production environment make sure to change the MEILI_MASTER_KEY variable.
+> ⚠️ if you are using wanderer in a production environment make sure to change the MEILI_MASTER_KEY and POCKETBASE_ENCRYPTION_KEY variable in .env.
 
 You can also run wanderer on bare-metal. Check out the [documentation](https://wanderer.to/run/installation/from-source) for a detailed how-to guide.
 
